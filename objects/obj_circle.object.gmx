@@ -33,7 +33,13 @@ enum aimdir {
     down = 270
 }
 
+depth = 0;
+
+instance_create(0, 0, obj_control);
 instance_create(x + 45, y, obj_gun);
+
+health = 4;
+invincible = false;
 
 hsp = 0;
 vsp = 0;
@@ -43,6 +49,58 @@ grounded = true;
 
 movespeed = 10;
 jumpspeed = 15;
+
+terminal_velocity = 25;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="1">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>visible = !visible;
+with (obj_gun) {
+    visible = !visible;
+}
+alarm[1] = room_speed * 0.1;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>invincible = false;
 </string>
           </argument>
         </arguments>
@@ -66,17 +124,17 @@ jumpspeed = 15;
           <argument>
             <kind>1</kind>
             <string>//Get the player's input
-key_right = keyboard_check(ord('D'));
+key_right = keyboard_check(ord('Dl'));
 key_left = -keyboard_check(ord('A'));
-key_up = -keyboard_check(ord('W'));
-key_down = keyboard_check(ord('S'));
+//key_up = -keyboard_check(ord('W'));
+//key_down = keyboard_check(ord('S'));
 
-key_jump = keyboard_check_pressed(ord('L'));
-key_shoot = keyboard_check_pressed(ord('K'));
+key_jump = keyboard_check_pressed(ord('W'));
+key_shoot = keyboard_check_pressed(vk_space);
 
 //React to inputs
 hdir = key_left + key_right;
-vdir = key_up + key_down;
+//vdir = key_up + key_down;
 hsp = hdir * movespeed;
 
 //Assign dir for obj_gun
@@ -88,16 +146,21 @@ if (hdir &lt; 0) {
     obj_gun.old_dir = obj_gun.dir;
 }
 //Up+Down overwrites Left+Right
-if (vdir &lt; 0) {
+if (!grounded) {
+    obj_gun.dir = aimdir.down;
+} else {
+    obj_gun.dir = obj_gun.old_dir;
+}
+/*if (vdir &lt; 0) {
     obj_gun.dir = aimdir.up;
 } else if (vdir &gt; 0) {
     obj_gun.dir = aimdir.down;
 } else {
     obj_gun.dir = obj_gun.old_dir;
-}
+}*/
 
 //Gravity effect
-if (vsp &lt; 25) vsp += grav;
+if (vsp &lt; terminal_velocity) vsp += grav;
 
 //Shoot
 if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and key_shoot) {
@@ -118,19 +181,34 @@ if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and key_shoot) {
 }
 
 //Shoot down
-if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and vdir &gt; 0 and key_shoot) {
+if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and
+    obj_gun.dir = aimdir.down and key_shoot) {
     if (vsp &gt; 0) {
-        vsp += -25;
-    } else if (vsp &gt; -5) {
+        vsp += -terminal_velocity;
+    } else if (vsp &gt; -15) {
         vsp += -jumpspeed;
+    } else {
+        vsp = -terminal_velocity;
     }
 }
 
-if (place_meeting(x,y+1,obj_wall)) {
+if (grounded and key_jump) {
+    audio_play_sound(snd_jump, 5, false);
     vsp = key_jump * -jumpspeed;
 }
 
+if (!invincible) {
+    alarm[1] = -1;
+}
+
 //Horizontal Collision
+if (!invincible and place_meeting(x,y+hsp,obj_triangle)) {
+    health--;
+    audio_play_sound(snd_hurt, 1, false);
+    invincible = true;
+    alarm[0] = room_speed * 2;
+    alarm[1] = room_speed * 0.1;
+}
 if (place_meeting(x+hsp,y,obj_wall)) {
     while(!place_meeting(x+sign(hsp),y,obj_wall)) {
         x += sign(hsp);
@@ -140,6 +218,13 @@ if (place_meeting(x+hsp,y,obj_wall)) {
 x += hsp;
 
 //Vertical Collision
+if (!invincible and place_meeting(x,y+vsp,obj_triangle)) {
+    health--;
+    audio_play_sound(snd_hurt, 1, false);
+    invincible = true;
+    alarm[0] = room_speed * 2;
+    alarm[1] = room_speed * 0.1;
+}
 if (place_meeting(x,y+vsp,obj_wall)) {
     while(!place_meeting(x,y+sign(vsp),obj_wall)) {
         y += sign(vsp);
@@ -148,11 +233,50 @@ if (place_meeting(x,y+vsp,obj_wall)) {
 }
 y += vsp;
 
-//Hack to ground character, will fix later with special ground object
-if (vsp == 0 and y &gt;= room_height - sprite_height) {
+//Ground Collision
+if (place_meeting(x,y+sprite_height/2,obj_ground)) {
     grounded = true;
-} else if (key_jump) {
+} else {
     grounded = false;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="64">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>//Draw UI elements on character
+draw_set_font(fnt_shareTechMono);
+draw_set_color(c_white);
+draw_set_alpha(1);
+draw_set_halign(fa_center);
+draw_set_valign(fa_center);
+draw_text(x, y, string(obj_gun.num_bullets));
+
+if (health &gt; 1) {
+    draw_sprite(spr_life, 0, x, y-45);
+}
+if (health &gt; 2) {
+    draw_sprite(spr_life, 0, x-20, y-45);
+}
+if (health &gt; 3) {
+    draw_sprite(spr_life, 0, x+20, y-45);
 }
 </string>
           </argument>

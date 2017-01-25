@@ -25,14 +25,46 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>max_bullets = 10;
-num_bullets = max_bullets;
+            <string>depth = 0;
 
-shotspeed = 0.2
+gun_offset = 50;
+
+max_bullets = 20;
+num_bullets = max_bullets;
+bullet_xoffset = 10;
+bullet_yoffset = 10;
+
+shotrate = 0.1;
+shotspeed = 40;
 can_shoot = true;
+reload = true;
+cooldown = 0.05;
 
 dir = aimdir.right;
 old_dir = dir;
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>cool = true;
 </string>
           </argument>
         </arguments>
@@ -109,55 +141,62 @@ var bullet_y = 0;
 if (dir == aimdir.left) {
     image_angle = 0;
     image_xscale = -1;
-    x = obj_circle.x - 50;
+    x = obj_circle.x - gun_offset;
     y = obj_circle.y;
-    bullet_x = x - 32;
+    bullet_x = x - bullet_xoffset;
     bullet_y = y;
 } else if (dir == aimdir.right) {
     image_angle = 0;
     image_xscale = 1;
-    x = obj_circle.x + 50;
+    x = obj_circle.x + gun_offset;
     y = obj_circle.y;
-    bullet_x = x + 32;
+    bullet_x = x + bullet_xoffset;
     bullet_y = y;
 } else if (dir == aimdir.up) {
     image_angle = 90;
     image_yscale = 1;
     x = obj_circle.x;
-    y = obj_circle.y - 50;
+    y = obj_circle.y - gun_offset;
     bullet_x = x;
-    bullet_y = y - 32;
+    bullet_y = y - bullet_yoffset;
 } else if (dir == aimdir.down) {
     image_angle = 90;
     image_yscale = -1;
     x = obj_circle.x;
-    y = obj_circle.y + 50;
+    y = obj_circle.y + gun_offset;
     bullet_x = x;
-    bullet_y = y + 32;
+    bullet_y = y + bullet_yoffset;
 }
 
 //Fire gun
-if (can_shoot and keyboard_check_pressed(ord('K'))) {
+if (can_shoot and obj_circle.key_shoot) {
     can_shoot = false;
+    alarm[2] = room_speed * cooldown;
+    if (obj_circle.grounded) {
+        alarm[0] = room_speed * 0.5;
+    }
     if (num_bullets &gt; 0) {
         var inst = instance_create(bullet_x, bullet_y, obj_bullet);
+        audio_play_sound(snd_pew, 4, false);
         num_bullets -= 1;
         with (inst) {
             inst.direction = obj_gun.dir;
-            inst.speed = 20;
+            inst.speed = obj_gun.shotspeed;
         }
     } else {
-        //Play empty clip noise
+        audio_play_sound(snd_click, 2, false);
     }
 }
 
 //Reload if on ground
 if (alarm[0] &lt;= 0 and obj_circle.grounded) {
-    alarm[0] = room_speed * 0.5;
+    alarm[0] = room_speed * 0.3;
+} else if (!obj_circle.grounded) {
+    alarm[0] = -1;
 }
 
 if (alarm[1] &lt;= 0 and !can_shoot) {
-    alarm[1] = room_speed * shotspeed;
+    alarm[1] = room_speed * shotrate;
 }
 </string>
           </argument>

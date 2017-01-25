@@ -4,24 +4,48 @@
     <Config>Configs\Default</Config>
   </Configs>
   <NewExtensions/>
-  <sounds name="sound"/>
+  <sounds name="sound">
+    <sound>sound\snd_pew</sound>
+    <sound>sound\snd_hit</sound>
+    <sound>sound\snd_hurt</sound>
+    <sound>sound\snd_shield_hit</sound>
+    <sound>sound\snd_jump</sound>
+    <sound>sound\snd_click</sound>
+    <sound>sound\snd_bgm</sound>
+  </sounds>
   <sprites name="sprites">
     <sprite>sprites\spr_circle</sprite>
     <sprite>sprites\spr_triangle</sprite>
     <sprite>sprites\spr_wall</sprite>
     <sprite>sprites\spr_gun</sprite>
     <sprite>sprites\spr_bullet</sprite>
+    <sprite>sprites\spr_start</sprite>
+    <sprite>sprites\spr_shield</sprite>
+    <sprite>sprites\spr_life</sprite>
+    <sprite>sprites\spr_ground</sprite>
   </sprites>
   <backgrounds name="background"/>
   <paths name="paths"/>
+  <fonts name="fonts">
+    <font>fonts\fnt_rockSalt</font>
+    <font>fonts\fnt_itim</font>
+    <font>fonts\fnt_itim_small</font>
+    <font>fonts\fnt_shareTechMono</font>
+  </fonts>
   <objects name="objects">
     <object>objects\obj_circle</object>
+    <object>objects\obj_gun</object>
     <object>objects\obj_triangle</object>
     <object>objects\obj_wall</object>
-    <object>objects\obj_gun</object>
     <object>objects\obj_bullet</object>
+    <object>objects\obj_ground</object>
+    <object>objects\obj_control</object>
+    <object>objects\obj_spawner</object>
+    <object>objects\obj_start</object>
+    <object>objects\obj_shield</object>
   </objects>
   <rooms name="rooms">
+    <room>rooms\rm_title</room>
     <room>rooms\rm_level</room>
   </rooms>
   <help>

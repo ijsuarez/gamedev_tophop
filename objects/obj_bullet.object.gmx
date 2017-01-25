@@ -7,7 +7,97 @@
   <persistent>0</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
-  <events/>
+  <events>
+    <event eventtype="3" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>var next_x = x + hspeed;
+var next_y = y + vspeed;
+var inst;
+
+if (direction == aimdir.left) {
+    for (i = x; i &gt;= next_x; i--) {
+        inst = instance_place(i, y, obj_triangle);
+        if (place_meeting(i, y, obj_shield)) {
+            audio_play_sound(snd_shield_hit, 3, false);
+            instance_destroy();
+            break;
+        } else if (inst != noone) {
+            with (inst) {
+                hp--;
+            }
+            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        }
+    }
+} else if (direction == aimdir.right) {
+    for (i = x; i &lt; next_x; i++) {
+        inst = instance_place(i, y, obj_triangle);
+        if (place_meeting(i, y, obj_shield)) {
+            audio_play_sound(snd_shield_hit, 3, false);
+            instance_destroy();
+            break;
+        } else if (inst != noone) {
+            with (inst) {
+                hp--;
+            }
+            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        }
+    }
+} else if (direction == aimdir.down) {
+    for (i = y; i &lt; next_y; i++) {
+        inst = instance_place(x, i, obj_triangle);
+        if (place_meeting(x, i, obj_shield)) {
+            audio_play_sound(snd_shield_hit, 3, false);
+            instance_destroy();
+            break;
+        } else if (inst != noone) {
+            with (inst) {
+                hp--;
+            }
+            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        }
+    }
+} else if (direction == aimdir.up) {
+    for (i = y; i &gt;= next_y; i--) {
+        inst = instance_place(x, i, obj_triangle);
+        if (place_meeting(x, i, obj_shield)) {
+            audio_play_sound(snd_shield_hit, 3, false);
+            instance_destroy();
+            break;
+        } else if (inst != noone) {
+            with (inst) {
+                hp--;
+            }
+            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        }
+    }
+} else {
+    show_debug_message("Error in bullet direction."); //shouldn't happen
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+  </events>
   <PhysicsObject>0</PhysicsObject>
   <PhysicsObjectSensor>0</PhysicsObjectSensor>
   <PhysicsObjectShape>0</PhysicsObjectShape>
