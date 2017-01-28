@@ -31,6 +31,9 @@ var inst;
 
 if (direction == aimdir.left) {
     for (i = x; i &gt;= next_x; i--) {
+        if (place_meeting(i, y, obj_wall)) {
+            instance_destroy();
+        }
         inst = instance_place(i, y, obj_triangle);
         if (place_meeting(i, y, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
@@ -46,6 +49,9 @@ if (direction == aimdir.left) {
     }
 } else if (direction == aimdir.right) {
     for (i = x; i &lt; next_x; i++) {
+        if (place_meeting(i, y, obj_wall)) {
+            instance_destroy();
+        }
         inst = instance_place(i, y, obj_triangle);
         if (place_meeting(i, y, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
@@ -61,6 +67,9 @@ if (direction == aimdir.left) {
     }
 } else if (direction == aimdir.down) {
     for (i = y; i &lt; next_y; i++) {
+        if (place_meeting(x, i, obj_wall)) {
+            instance_destroy();
+        }
         inst = instance_place(x, i, obj_triangle);
         if (place_meeting(x, i, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
@@ -76,6 +85,9 @@ if (direction == aimdir.left) {
     }
 } else if (direction == aimdir.up) {
     for (i = y; i &gt;= next_y; i--) {
+        if (place_meeting(x, i, obj_wall)) {
+            instance_destroy();
+        }
         inst = instance_place(x, i, obj_triangle);
         if (place_meeting(x, i, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);

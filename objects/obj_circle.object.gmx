@@ -40,17 +40,19 @@ instance_create(x + 45, y, obj_gun);
 
 health = 4;
 invincible = false;
+grounded = true;
 
 hsp = 0;
 vsp = 0;
 
-grav = 1;
-grounded = true;
+acc = 0.5;
+grav = 0.1;
 
-movespeed = 10;
-jumpspeed = 15;
+movespeed = 3;
+jumpspeed = 5;
+recoil = 5;
 
-terminal_velocity = 25;
+terminal_velocity = 7;
 </string>
           </argument>
         </arguments>
@@ -77,7 +79,7 @@ terminal_velocity = 25;
 with (obj_gun) {
     visible = !visible;
 }
-alarm[1] = room_speed * 0.1;
+alarm[1] = global.TIME_PASSED * 5;
 </string>
           </argument>
         </arguments>
@@ -124,7 +126,7 @@ alarm[1] = room_speed * 0.1;
           <argument>
             <kind>1</kind>
             <string>//Get the player's input
-key_right = keyboard_check(ord('Dl'));
+key_right = keyboard_check(ord('D'));
 key_left = -keyboard_check(ord('A'));
 //key_up = -keyboard_check(ord('W'));
 //key_down = keyboard_check(ord('S'));
@@ -135,7 +137,12 @@ key_shoot = keyboard_check_pressed(vk_space);
 //React to inputs
 hdir = key_left + key_right;
 //vdir = key_up + key_down;
-hsp = hdir * movespeed;
+if (hdir &gt; 0 and hsp &lt; movespeed) hsp += acc;
+else if (hdir &lt; 0 and hsp &gt; -movespeed) hsp -= acc;
+else {
+    if (grounded) hsp = lerp(hsp, 0, 0.2);
+    else hsp = lerp(hsp, 0, 0.02);
+}
 
 //Assign dir for obj_gun
 if (hdir &lt; 0) {
@@ -160,33 +167,23 @@ if (!grounded) {
 }*/
 
 //Gravity effect
-if (vsp &lt; terminal_velocity) vsp += grav;
+if (vsp &lt; terminal_velocity) vsp += global.TIME_PASSED * grav;
 
 //Shoot
 if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and key_shoot) {
     //Horizontal recoil
     if (obj_gun.dir = aimdir.left) {
-        if (hdir == 0) {
-            hsp += movespeed;
-        } else {
-            hsp += movespeed * 2;
-        }
+        hsp += recoil;
     } else if (obj_gun.dir = aimdir.right) {
-        if (hdir == 0) {
-            hsp -= movespeed;
-        } else {
-            hsp -= movespeed * 2;
-        }
+        hsp -= recoil;
     }
 }
 
 //Shoot down
 if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and
     obj_gun.dir = aimdir.down and key_shoot) {
-    if (vsp &gt; 0) {
-        vsp += -terminal_velocity;
-    } else if (vsp &gt; -15) {
-        vsp += -jumpspeed;
+    if (vsp &gt; -terminal_velocity) {
+        vsp += -recoil;
     } else {
         vsp = -terminal_velocity;
     }
@@ -194,47 +191,48 @@ if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and
 
 if (grounded and key_jump) {
     audio_play_sound(snd_jump, 5, false);
-    vsp = key_jump * -jumpspeed;
+    vsp -= jumpspeed;
 }
 
 if (!invincible) {
+    visible = true;
     alarm[1] = -1;
 }
 
 //Horizontal Collision
-if (!invincible and place_meeting(x,y+hsp,obj_triangle)) {
+if (!invincible and place_meeting(x,y+global.TIME_PASSED*hsp,obj_triangle)) {
     health--;
     audio_play_sound(snd_hurt, 1, false);
     invincible = true;
-    alarm[0] = room_speed * 2;
-    alarm[1] = room_speed * 0.1;
+    alarm[0] = global.TIME_PASSED * 100;
+    alarm[1] = global.TIME_PASSED * 5;
 }
-if (place_meeting(x+hsp,y,obj_wall)) {
+if (place_meeting(x+global.TIME_PASSED*hsp,y,obj_wall)) {
     while(!place_meeting(x+sign(hsp),y,obj_wall)) {
         x += sign(hsp);
     }
     hsp = 0;
 }
-x += hsp;
+x += global.TIME_PASSED * hsp;
 
 //Vertical Collision
-if (!invincible and place_meeting(x,y+vsp,obj_triangle)) {
+if (!invincible and place_meeting(x,y+global.TIME_PASSED*vsp,obj_triangle)) {
     health--;
     audio_play_sound(snd_hurt, 1, false);
     invincible = true;
-    alarm[0] = room_speed * 2;
-    alarm[1] = room_speed * 0.1;
+    alarm[0] = global.TIME_PASSED * 100;
+    alarm[1] = global.TIME_PASSED * 5;
 }
-if (place_meeting(x,y+vsp,obj_wall)) {
+if (place_meeting(x,y+global.TIME_PASSED*vsp,obj_wall)) {
     while(!place_meeting(x,y+sign(vsp),obj_wall)) {
         y += sign(vsp);
     }
     vsp = 0;
 }
-y += vsp;
+y += global.TIME_PASSED * vsp;
 
 //Ground Collision
-if (place_meeting(x,y+sprite_height/2,obj_ground)) {
+if (place_meeting(x,y+sprite_height/4,obj_ground)) {
     grounded = true;
 } else {
     grounded = false;

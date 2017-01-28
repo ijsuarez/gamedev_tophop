@@ -25,7 +25,10 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>score = 0;
+            <string>global.SPD = 100;
+global.TIME_PASSED = global.SPD * delta_time / 1000000;
+
+score = 0;
 gameover = false;
 delay = true;
 </string>
@@ -73,7 +76,9 @@ delay = true;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>if (!gameover) {
+            <string>global.TIME_PASSED = global.SPD * delta_time / 1000000;
+
+if (!gameover) {
     score_str = "Score: " + string(score);
     life_str = "Health: " + string(obj_circle.health);
     ammo_str = "Ammo: " + string(obj_gun.num_bullets);
@@ -81,6 +86,7 @@ delay = true;
 
 if (!gameover and obj_circle.health &lt;= 0) {
     gameover = true;
+    global.SPD = 0;
     alarm[0] = room_speed * 1;
     with (obj_circle) {
         instance_destroy();

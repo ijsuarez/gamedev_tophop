@@ -64,7 +64,7 @@ if (shield_type &lt; 0) {      //Horizontal
           <argument>
             <kind>1</kind>
             <string>with (shield) {
-    x += other.hsp;
+    x += global.TIME_PASSED * other.hsp;
 }
 
 if (hp &lt;= 0) {
@@ -82,7 +82,7 @@ if (x &lt; -10 or x &gt; room_width + 10 or y &lt; -10 or y &gt; room_height + 1
     }
 }
 
-x += hsp;
+x += global.TIME_PASSED * hsp;
 </string>
           </argument>
         </arguments>
