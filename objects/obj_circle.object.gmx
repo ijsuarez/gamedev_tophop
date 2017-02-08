@@ -4,7 +4,7 @@
   <solid>0</solid>
   <visible>-1</visible>
   <depth>0</depth>
-  <persistent>0</persistent>
+  <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
@@ -33,17 +33,20 @@ enum aimdir {
     down = 270
 }
 
-depth = 0;
-
 instance_create(0, 0, obj_control);
-instance_create(x + 45, y, obj_gun);
+
+depth = 0;
 
 health = 4;
 invincible = false;
 grounded = true;
+gun = noone;
+gun_type = "";
+display_question = false;
 
 hsp = 0;
 vsp = 0;
+dir = aimdir.right;
 
 acc = 0.5;
 grav = 0.1;
@@ -53,6 +56,116 @@ jumpspeed = 5;
 recoil = 5;
 
 terminal_velocity = 7;
+
+particle_jump = part_type_create();
+part_type_shape(particle_jump,pt_shape_smoke);
+part_type_size(particle_jump,0.10,0.50,0,0);
+part_type_scale(particle_jump,1,1);
+part_type_color2(particle_jump,12632256,8421504);
+part_type_alpha1(particle_jump,1);
+part_type_speed(particle_jump,0.50,1,0,0);
+part_type_direction(particle_jump,40,120,0,0);
+part_type_gravity(particle_jump,0.00,90);
+part_type_orientation(particle_jump,0,0,0,0,1);
+part_type_blend(particle_jump,1);
+part_type_life(particle_jump,30,30);
+
+emitter_jump = part_emitter_create(global.PSYSTEM);
+
+particle_death = part_type_create();
+part_type_shape(particle_death,pt_shape_disk);
+part_type_size(particle_death,0.20,1,0,0);
+part_type_scale(particle_death,1,1);
+part_type_color2(particle_death,16716820,16744576);
+part_type_alpha1(particle_death,1);
+part_type_speed(particle_death,15,20,0,0);
+part_type_direction(particle_death,50,130,0,0);
+part_type_gravity(particle_death,0.50,270);
+part_type_orientation(particle_death,0,0,0,0,1);
+part_type_blend(particle_death,1);
+part_type_life(particle_death,80,80);
+
+emitter_death = part_emitter_create(global.PSYSTEM);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>part_emitter_region(global.PSYSTEM,emitter_death,x,x,y,y,0,0);
+part_emitter_burst(global.PSYSTEM,emitter_death,particle_death,15+irandom(10));
+
+part_emitter_destroy(global.PSYSTEM, emitter_jump);
+part_emitter_destroy(global.PSYSTEM, emitter_death);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="3">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (dir = aimdir.right) {
+    gun = instance_create(x + 45, y, obj_gun);
+} else if (dir = aimdir.left) {
+    gun = instance_create(x - 45, y, obj_gun);
+}
+with (gun) {
+    other.gun_type = object_get_name(object_index);
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>display_question = false;
 </string>
           </argument>
         </arguments>
@@ -77,7 +190,7 @@ terminal_velocity = 7;
             <kind>1</kind>
             <string>visible = !visible;
 with (obj_gun) {
-    visible = !visible;
+    visible = other.visible;
 }
 alarm[1] = 5;
 </string>
@@ -125,124 +238,18 @@ alarm[1] = 5;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>//Get the player's input
+            <string>///Get the player's input
 key_right = keyboard_check(ord('D'));
 key_left = -keyboard_check(ord('A'));
 //key_up = -keyboard_check(ord('W'));
-//key_down = keyboard_check(ord('S'));
+key_down = keyboard_check_pressed(ord('S'));
 
 key_jump = keyboard_check_pressed(ord('W'));
 key_shoot = keyboard_check_pressed(vk_space);
-
-//React to inputs
-hdir = key_left + key_right;
-//vdir = key_up + key_down;
-if (hdir &gt; 0 and hsp &lt; movespeed) hsp += acc;
-else if (hdir &lt; 0 and hsp &gt; -movespeed) hsp -= acc;
-else {
-    if (grounded) hsp = lerp(hsp, 0, 0.2);
-    else hsp = lerp(hsp, 0, 0.02);
-}
-
-//Assign dir for obj_gun
-if (hdir &lt; 0) {
-    obj_gun.dir = aimdir.left;
-    obj_gun.old_dir = obj_gun.dir;
-} else if (hdir &gt; 0) {
-    obj_gun.dir = aimdir.right;
-    obj_gun.old_dir = obj_gun.dir;
-}
-//Up+Down overwrites Left+Right
-if (!grounded) {
-    obj_gun.dir = aimdir.down;
-} else {
-    obj_gun.dir = obj_gun.old_dir;
-}
-/*if (vdir &lt; 0) {
-    obj_gun.dir = aimdir.up;
-} else if (vdir &gt; 0) {
-    obj_gun.dir = aimdir.down;
-} else {
-    obj_gun.dir = obj_gun.old_dir;
-}*/
-
-//Gravity effect
-if (vsp &lt; terminal_velocity) vsp += global.TIME_PASSED * grav;
-
-//Shoot
-if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and key_shoot) {
-    //Horizontal recoil
-    if (obj_gun.dir = aimdir.left) {
-        hsp += recoil;
-    } else if (obj_gun.dir = aimdir.right) {
-        hsp -= recoil;
-    }
-}
-
-//Shoot down
-if (obj_gun.can_shoot and obj_gun.num_bullets &gt; 0 and
-    obj_gun.dir = aimdir.down and key_shoot) {
-    if (vsp &gt; -terminal_velocity) {
-        vsp += -recoil;
-    } else {
-        vsp = -terminal_velocity;
-    }
-}
-
-if (grounded and key_jump) {
-    audio_play_sound(snd_jump, 5, false);
-    vsp -= jumpspeed;
-}
-
-if (!invincible) {
-    visible = true;
-    alarm[1] = -1;
-}
-
-//Horizontal Collision
-if (!invincible and place_meeting(x,y+global.TIME_PASSED*hsp,obj_triangle)) {
-    health--;
-    audio_play_sound(snd_hurt, 1, false);
-    invincible = true;
-    alarm[0] = 100;
-    alarm[1] = 5;
-}
-if (place_meeting(x+global.TIME_PASSED*hsp,y,obj_wall)) {
-    while(!place_meeting(x+sign(hsp),y,obj_wall)) {
-        x += sign(hsp);
-    }
-    hsp = 0;
-}
-x += global.TIME_PASSED * hsp;
-
-//Vertical Collision
-if (!invincible and place_meeting(x,y+global.TIME_PASSED*vsp,obj_triangle)) {
-    health--;
-    audio_play_sound(snd_hurt, 1, false);
-    invincible = true;
-    alarm[0] = 100;
-    alarm[1] = 5;
-}
-if (place_meeting(x,y+global.TIME_PASSED*vsp,obj_wall)) {
-    while(!place_meeting(x,y+sign(vsp),obj_wall)) {
-        y += sign(vsp);
-    }
-    vsp = 0;
-}
-y += global.TIME_PASSED * vsp;
-
-//Ground Collision
-if (place_meeting(x,y+sprite_height/4,obj_ground)) {
-    grounded = true;
-} else {
-    grounded = false;
-}
 </string>
           </argument>
         </arguments>
       </action>
-    </event>
-    <event eventtype="8" enumb="64">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -259,13 +266,336 @@ if (place_meeting(x,y+sprite_height/4,obj_ground)) {
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>//Draw UI elements on character
-draw_set_font(fnt_shareTechMono);
-draw_set_color(c_white);
-draw_set_alpha(1);
-draw_set_halign(fa_center);
-draw_set_valign(fa_center);
-draw_text(x, y, string(obj_gun.num_bullets));
+            <string>///Movement
+
+//React to inputs
+hdir = key_left + key_right;
+//vdir = key_up + key_down;
+if (hdir &lt; 0) {
+    dir = aimdir.left;
+} else if (hdir &gt; 0) {
+    dir = aimdir.right;
+}
+
+if (hdir &gt; 0 and hsp &lt; movespeed) hsp += acc;
+else if (hdir &lt; 0 and hsp &gt; -movespeed) hsp -= acc;
+else {
+    if (grounded) hsp = lerp(hsp, 0, 0.2);
+    else hsp = lerp(hsp, 0, 0.02);
+}
+
+//Gravity effect
+if (vsp &lt; terminal_velocity) vsp += global.TIME_PASSED * grav;
+
+//Jump
+if (grounded and key_jump) {
+    audio_play_sound(snd_jump, 5, false);
+    part_emitter_region(global.PSYSTEM,emitter_jump,x-50,x+50,y+sprite_height/2,y+sprite_height/2,ps_shape_rectangle,1);
+    part_emitter_burst(global.PSYSTEM, emitter_jump, particle_jump, 3 + irandom(3));
+    vsp -= jumpspeed;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Examine Logic
+if (key_down and grounded) {
+    pickup = instance_position(x, y, obj_pickup);
+    door = instance_position(x, y, obj_door);
+    if (pickup != noone) {
+        with (pickup) {
+            if (object_get_name(object_index) == "obj_pickup_gun") {
+                other.alarm[3] = 1;
+                audio_play_sound(snd_powerup, 0, false);
+                instance_destroy();
+            } else if (object_get_name(object_index) == "obj_pickup_life") {
+                if (health &lt; 4) {
+                    health = 4;
+                }
+                audio_play_sound(snd_healthbox, 0, false);
+            } else if (object_get_name(object_index) == "obj_pickup_str_up") {
+                (other.gun).bullet_type = "obj_bullet_strong";
+                (other.gun).alarm[2] = 400;
+                audio_play_sound(snd_powerup, 0, false);
+                instance_destroy();
+            }
+        }
+    } else if (door != noone) {
+        with (door) {
+            global.door_id = door_id;
+            room_goto(to_room);
+        }
+    } else {
+        question_coord = 0;
+        display_question = true;
+        alarm[2] = 60;
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Gun Logic
+if (gun != noone) {
+    //Assign dir for (gun)
+    (gun).dir = dir;
+
+    //Up+Down overwrites Left+Right
+    if (!grounded) {
+        (gun).dir = aimdir.down;
+    } else {
+        (gun).dir = dir;
+    }
+    /*if (vdir &lt; 0) {
+        (gun).dir = aimdir.up;
+    } else if (vdir &gt; 0) {
+        (gun).dir = aimdir.down;
+    } else {
+        (gun).dir = (gun).old_dir;
+    }*/
+    
+    //Shoot
+    if ((gun).can_shoot and (gun).num_bullets &gt; 0 and key_shoot) {
+        //Horizontal recoil
+        if ((gun).dir = aimdir.left) {
+            hsp += recoil;
+        } else if ((gun).dir = aimdir.right) {
+            hsp -= recoil;
+        }
+    }
+    
+    //Shoot down
+    if ((gun).can_shoot and (gun).num_bullets &gt; 0 and
+        (gun).dir = aimdir.down and key_shoot) {
+        if (vsp &gt; -terminal_velocity) {
+            vsp += -recoil;
+        } else {
+            vsp = -terminal_velocity;
+        }
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Enemy Collisions
+
+if (!invincible) {
+    visible = true;
+    alarm[1] = -1;
+}
+
+//Horizontal Collision
+if (!invincible and place_meeting(x,y+global.TIME_PASSED*hsp,obj_enemy)) {
+    health--;
+    audio_play_sound(snd_hurt, 1, false);
+    obj_camera.shake = true;
+    invincible = true;
+    alarm[0] = 100;
+    alarm[1] = 5;
+}
+
+//Vertical Collision
+if (!invincible and place_meeting(x,y+global.TIME_PASSED*vsp,obj_enemy)) {
+    health--;
+    audio_play_sound(snd_hurt, 1, false);
+    obj_camera.shake = true;
+    invincible = true;
+    alarm[0] = 100;
+    alarm[1] = 5;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>///Environment Collisions
+
+//Horizontal Collision
+if (place_meeting(x+global.TIME_PASSED*hsp,y,obj_wall)) {
+    while(!place_meeting(x+sign(hsp),y,obj_wall)) {
+        x += sign(hsp);
+    }
+    hsp = 0;
+}
+x += global.TIME_PASSED * hsp;
+
+//Vertical Collision
+if (place_meeting(x,y+global.TIME_PASSED*vsp,obj_wall)) {
+    while(!place_meeting(x,y+sign(vsp),obj_wall)) {
+        y += sign(vsp);
+    }
+    vsp = 0;
+}
+y += global.TIME_PASSED * vsp;
+
+//Ground Collision
+if (vsp == 0 and place_meeting(x,y+sprite_height/2,obj_ground)) {
+    if (grounded == false) {
+        audio_play_sound(snd_land, 5, false);
+        part_emitter_region(global.PSYSTEM,emitter_jump,x-50,x+50,y+sprite_height/2,y+sprite_height/2,ps_shape_rectangle,1);
+        part_emitter_burst(global.PSYSTEM, emitter_jump, particle_jump, 3 + irandom(3));
+    }
+    grounded = true;
+} else if (!place_meeting(x,y+sprite_height/2,obj_ground)) {
+    grounded = false;
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="5" enumb="82">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>part_emitter_destroy_all(global.PSYSTEM);
+room_restart();
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="7" enumb="4">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (gun_type = "obj_gun") {
+    if (dir = aimdir.right) {
+        gun = instance_create(x + 45, y, obj_gun);
+    } else if (dir = aimdir.left) {
+        gun = instance_create(x - 45, y, obj_gun);
+    }
+}
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="8" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>if (display_question) {
+    question_coord = lerp(question_coord, sprite_height + 10, 0.1);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_center);
+    draw_text(x, y - question_coord, "?");
+}
+
+draw_self();
+
+//Draw UI elements on character
+if (gun != noone) {
+    draw_set_font(fnt_shareTechMono);
+    draw_set_color(c_white);
+    draw_set_alpha(1);
+    draw_set_halign(fa_center);
+    draw_set_valign(fa_center);
+    draw_text(x, y, string((gun).num_bullets));
+}
 
 if (health &gt; 1) {
     draw_sprite(spr_life, 0, x, y-45);

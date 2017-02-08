@@ -8,6 +8,86 @@
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
+    <event eventtype="0" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>image_speed = 0;
+
+spawnx = x;
+spawny = y;
+
+particle_trishatter = part_type_create();
+part_type_sprite(particle_trishatter,spr_triangle,0,0,0);
+part_type_size(particle_trishatter,0.10,1,0,0);
+part_type_scale(particle_trishatter,0.50,0.50);
+part_type_color2(particle_trishatter,3289855,3309823);
+part_type_alpha1(particle_trishatter,1);
+part_type_speed(particle_trishatter,10,20,0,0);
+part_type_direction(particle_trishatter,-30,30,0,0);
+part_type_gravity(particle_trishatter,0.50,270);
+part_type_orientation(particle_trishatter,0,359,0,0,1);
+part_type_blend(particle_trishatter,1);
+part_type_life(particle_trishatter,70,70);
+
+emitter_trishatter = part_emitter_create(global.PSYSTEM);
+
+particle_shieldhit = part_type_create();
+part_type_shape(particle_shieldhit,pt_shape_line);
+part_type_size(particle_shieldhit,0.25,0.50,0,0);
+part_type_scale(particle_shieldhit,1,1);
+part_type_color2(particle_shieldhit,12615935,3309823);
+part_type_alpha1(particle_shieldhit,1);
+part_type_speed(particle_shieldhit,1,2,0,0);
+part_type_direction(particle_shieldhit,-30,30,0,0);
+part_type_gravity(particle_shieldhit,0.10,270);
+part_type_orientation(particle_shieldhit,0,359,0,0,1);
+part_type_blend(particle_shieldhit,1);
+part_type_life(particle_shieldhit,60,60);
+
+emitter_shieldhit = part_emitter_create(global.PSYSTEM);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>part_emitter_destroy(global.PSYSTEM, emitter_trishatter);
+part_emitter_destroy(global.PSYSTEM, emitter_shieldhit);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
     <event eventtype="3" enumb="0">
       <action>
         <libid>1</libid>
@@ -34,16 +114,27 @@ if (direction == aimdir.left) {
         if (place_meeting(i, y, obj_wall)) {
             instance_destroy();
         }
-        inst = instance_place(i, y, obj_triangle);
+        inst = instance_place(i, y, obj_enemy);
         if (place_meeting(i, y, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
+            part_type_direction(particle_shieldhit,150,210,0,0);
+            part_emitter_region(global.PSYSTEM,emitter_shieldhit,i,i,y-10,y+10,0,0);
+            part_emitter_burst(global.PSYSTEM, emitter_shieldhit, particle_shieldhit, 3 + irandom(5));
             instance_destroy();
             break;
         } else if (inst != noone) {
             with (inst) {
                 hp--;
+                hit = true;
+                audio_play_sound(snd_hit, 3, false);
+                if (hp &lt;= 0) {
+                    part_type_direction(other.particle_trishatter,140,200,0,0);
+                    part_emitter_region(global.PSYSTEM,other.emitter_trishatter,x,x,y,y,0,0);
+                    part_emitter_burst(global.PSYSTEM, other.emitter_trishatter, other.particle_trishatter, 10 + irandom(5));
+                }
             }
-            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        } else if (i &lt; spawnx - shotrange) {
             instance_destroy();
         }
     }
@@ -52,16 +143,27 @@ if (direction == aimdir.left) {
         if (place_meeting(i, y, obj_wall)) {
             instance_destroy();
         }
-        inst = instance_place(i, y, obj_triangle);
+        inst = instance_place(i, y, obj_enemy);
         if (place_meeting(i, y, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
+            part_type_direction(particle_shieldhit,-30,30,0,0);
+            part_emitter_region(global.PSYSTEM,emitter_shieldhit,i,i,y-10,y+10,0,0);
+            part_emitter_burst(global.PSYSTEM, emitter_shieldhit, particle_shieldhit, 3 + irandom(5));
             instance_destroy();
             break;
         } else if (inst != noone) {
             with (inst) {
                 hp--;
+                hit = true;
+                audio_play_sound(snd_hit, 3, false);
+                if (hp &lt;= 0) {
+                    part_type_direction(other.particle_trishatter,-20,40,0,0);
+                    part_emitter_region(global.PSYSTEM,other.emitter_trishatter,x,x,y,y,0,0);
+                    part_emitter_burst(global.PSYSTEM, other.emitter_trishatter, other.particle_trishatter, 10 + irandom(5));
+                }
             }
-            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        } else if (i &gt; spawnx + shotrange) {
             instance_destroy();
         }
     }
@@ -70,16 +172,27 @@ if (direction == aimdir.left) {
         if (place_meeting(x, i, obj_wall)) {
             instance_destroy();
         }
-        inst = instance_place(x, i, obj_triangle);
+        inst = instance_place(x, i, obj_enemy);
         if (place_meeting(x, i, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
+            part_type_direction(particle_shieldhit,240,300,0,0);
+            part_emitter_region(global.PSYSTEM,emitter_shieldhit,x-10,x+10,i,i,0,0);
+            part_emitter_burst(global.PSYSTEM, emitter_shieldhit, particle_shieldhit, 3 + irandom(5));
             instance_destroy();
             break;
         } else if (inst != noone) {
             with (inst) {
                 hp--;
+                hit = true;
+                audio_play_sound(snd_hit, 3, false);
+                if (hp &lt;= 0) {
+                    part_type_direction(other.particle_trishatter,60,120,0,0);
+                    part_emitter_region(global.PSYSTEM,other.emitter_trishatter,x,x,y,y,0,0);
+                    part_emitter_burst(global.PSYSTEM, other.emitter_trishatter, other.particle_trishatter, 10 + irandom(5));
+                }
             }
-            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        } else if (i &gt; spawny + shotrange) {
             instance_destroy();
         }
     }
@@ -88,16 +201,27 @@ if (direction == aimdir.left) {
         if (place_meeting(x, i, obj_wall)) {
             instance_destroy();
         }
-        inst = instance_place(x, i, obj_triangle);
+        inst = instance_place(x, i, obj_enemy);
         if (place_meeting(x, i, obj_shield)) {
             audio_play_sound(snd_shield_hit, 3, false);
+            part_type_direction(particle_shieldhit,150,210,0,0);
+            part_emitter_region(global.PSYSTEM,emitter_shieldhit,x-10,x+10,i,i,0,0);
+            part_emitter_burst(global.PSYSTEM, emitter_shieldhit, particle_shieldhit, 3 + irandom(5));
             instance_destroy();
             break;
         } else if (inst != noone) {
             with (inst) {
                 hp--;
+                hit = true;
+                audio_play_sound(snd_hit, 3, false);
+                if (hp &lt;= 0) {
+                    part_type_direction(other.particle_trishatter,240,300,0,0);
+                    part_emitter_region(global.PSYSTEM,other.emitter_trishatter,x,x,y,y,0,0);
+                    part_emitter_burst(global.PSYSTEM, other.emitter_trishatter, other.particle_trishatter, 10 + irandom(5));
+                }
             }
-            audio_play_sound(snd_hit, 3, false);
+            instance_destroy();
+        } else if (i &lt; spawny - shotrange) {
             instance_destroy();
         }
     }

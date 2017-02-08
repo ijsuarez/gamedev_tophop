@@ -5,17 +5,33 @@
   </Configs>
   <NewExtensions/>
   <sounds name="sound">
-    <sound>sound\snd_pew</sound>
-    <sound>sound\snd_hit</sound>
-    <sound>sound\snd_hurt</sound>
-    <sound>sound\snd_shield_hit</sound>
-    <sound>sound\snd_jump</sound>
-    <sound>sound\snd_click</sound>
-    <sound>sound\snd_bgm</sound>
+    <sounds name="BGM">
+      <sound>sound\bgm_title</sound>
+      <sound>sound\bgm_level</sound>
+      <sound>sound\bgm_boss</sound>
+    </sounds>
+    <sounds name="SFX">
+      <sounds name="Player">
+        <sound>sound\snd_click</sound>
+        <sound>sound\snd_pew</sound>
+        <sound>sound\snd_jump</sound>
+        <sound>sound\snd_land</sound>
+        <sound>sound\snd_hurt</sound>
+      </sounds>
+      <sounds name="Environment">
+        <sound>sound\snd_powerup</sound>
+        <sound>sound\snd_healthbox</sound>
+      </sounds>
+      <sounds name="Enemies">
+        <sound>sound\snd_hit</sound>
+        <sound>sound\snd_shield_hit</sound>
+      </sounds>
+    </sounds>
   </sounds>
   <sprites name="sprites">
     <sprite>sprites\spr_circle</sprite>
     <sprite>sprites\spr_triangle</sprite>
+    <sprite>sprites\spr_triangle_sm</sprite>
     <sprite>sprites\spr_wall</sprite>
     <sprite>sprites\spr_gun</sprite>
     <sprite>sprites\spr_bullet</sprite>
@@ -23,8 +39,13 @@
     <sprite>sprites\spr_shield</sprite>
     <sprite>sprites\spr_life</sprite>
     <sprite>sprites\spr_ground</sprite>
+    <sprite>sprites\spr_door</sprite>
+    <sprite>sprites\spr_healthbox</sprite>
   </sprites>
-  <backgrounds name="background"/>
+  <backgrounds name="background">
+    <background>background\bg_temp</background>
+    <background>background\bg_congrats</background>
+  </backgrounds>
   <paths name="paths"/>
   <fonts name="fonts">
     <font>fonts\fnt_rockSalt</font>
@@ -33,20 +54,43 @@
     <font>fonts\fnt_shareTechMono</font>
   </fonts>
   <objects name="objects">
-    <object>objects\obj_circle</object>
-    <object>objects\obj_gun</object>
-    <object>objects\obj_triangle</object>
-    <object>objects\obj_wall</object>
-    <object>objects\obj_bullet</object>
-    <object>objects\obj_ground</object>
-    <object>objects\obj_control</object>
-    <object>objects\obj_spawner</object>
-    <object>objects\obj_start</object>
-    <object>objects\obj_shield</object>
+    <objects name="Player">
+      <object>objects\obj_circle</object>
+      <object>objects\obj_gun</object>
+      <object>objects\obj_bullet</object>
+      <object>objects\obj_bullet_strong</object>
+    </objects>
+    <objects name="System">
+      <object>objects\obj_camera</object>
+      <object>objects\obj_control</object>
+      <object>objects\obj_spawner</object>
+      <object>objects\obj_start</object>
+    </objects>
+    <objects name="Environment">
+      <object>objects\obj_door</object>
+      <object>objects\obj_wall</object>
+      <object>objects\obj_ground</object>
+      <object>objects\obj_pickup</object>
+      <object>objects\obj_pickup_life</object>
+      <object>objects\obj_pickup_gun</object>
+      <object>objects\obj_pickup_str_up</object>
+    </objects>
+    <objects name="Enemies">
+      <object>objects\obj_enemy</object>
+      <object>objects\obj_tri_knight</object>
+      <object>objects\obj_tri_knight_horiz</object>
+      <object>objects\obj_tri_knight_vert</object>
+      <object>objects\obj_shield</object>
+      <object>objects\obj_tri_jumper</object>
+    </objects>
   </objects>
   <rooms name="rooms">
     <room>rooms\rm_title</room>
-    <room>rooms\rm_level</room>
+    <room>rooms\rm_level0</room>
+    <room>rooms\rm_level1</room>
+    <room>rooms\rm_level2</room>
+    <room>rooms\rm_level3</room>
+    <room>rooms\rm_level_test</room>
   </rooms>
   <help>
     <rtf>help.rtf</rtf>

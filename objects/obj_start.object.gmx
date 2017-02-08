@@ -25,15 +25,9 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>audio_play_sound(snd_bgm, 0, true);
+            <string>audio_play_sound(bgm_level, 0, true);
 
 alpha = 0;
-ini_open("score.ini");
-hiscore = ini_read_real("Score", "0", 0);
-ini_close();
-draw_set_font(fnt_itim_small);
-draw_set_halign(fa_center);
-draw_set_color(c_black);
 </string>
           </argument>
         </arguments>
@@ -58,7 +52,7 @@ draw_set_color(c_black);
             <kind>1</kind>
             <string>alpha += 0.05;
 if (alpha &gt;= 1) {
-    room_goto(rm_level);
+    room_goto(rm_level0);
 } else {
     alarm[0] = 1;
 }
@@ -92,7 +86,7 @@ if (alpha &gt;= 1) {
         </arguments>
       </action>
     </event>
-    <event eventtype="5" enumb="1">
+    <event eventtype="5" enumb="32">
       <action>
         <libid>1</libid>
         <id>603</id>
@@ -135,7 +129,6 @@ if (alpha &gt;= 1) {
           <argument>
             <kind>1</kind>
             <string>draw_self();
-draw_text(room_width/2, room_height - 80, "Hi-Score : " + string(hiscore));
 draw_set_alpha(alpha);
 draw_rectangle(0, 0, room_width, room_height, false);
 draw_set_alpha(1);

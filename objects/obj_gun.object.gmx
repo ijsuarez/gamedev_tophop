@@ -26,23 +26,118 @@
           <argument>
             <kind>1</kind>
             <string>depth = 0;
+image_speed = 0;
 
 gun_offset = 50;
 
-max_bullets = 10;
+bullet_type = "obj_bullet";
+max_bullets = 3;
 num_bullets = max_bullets;
 bullet_xoffset = 10;
 bullet_yoffset = 10;
 
 shotrate = 4;
-shotspeed = 20;
+shotspeed = 10;
+shotrange = 300;
 can_shoot = true;
 reload = true;
-reloadrate = 15;
+reloadrate = 20;
 cooldown = 20;
 
 dir = aimdir.right;
-old_dir = dir;
+
+particle_gun = part_type_create();
+part_type_shape(particle_gun,pt_shape_spark);
+part_type_size(particle_gun,0.30,0.50,0,0);
+part_type_scale(particle_gun,1,1);
+part_type_color2(particle_gun,720895,658175);
+part_type_alpha1(particle_gun,1);
+part_type_speed(particle_gun,2,5,0,0);
+part_type_direction(particle_gun,-30,30,0,0);
+part_type_gravity(particle_gun,0.10,270);
+part_type_orientation(particle_gun,0,0,0,0,1);
+part_type_blend(particle_gun,1);
+part_type_life(particle_gun,60,60);
+
+emitter_gun = part_emitter_create(global.PSYSTEM);
+
+particle_blank = part_type_create();
+part_type_shape(particle_blank,pt_shape_smoke);
+part_type_size(particle_blank,0.10,0.25,0,0);
+part_type_scale(particle_blank,1,1);
+part_type_color2(particle_blank,14869218,11974326);
+part_type_alpha1(particle_blank,1);
+part_type_speed(particle_blank,1,1,0,0);
+part_type_direction(particle_blank,-30,30,0,0);
+part_type_gravity(particle_blank,0.10,90);
+part_type_orientation(particle_blank,0,0,0,0,1);
+part_type_blend(particle_blank,0);
+part_type_life(particle_blank,30,30);
+
+emitter_blank = part_emitter_create(global.PSYSTEM);
+
+particle_reload = part_type_create();
+part_type_shape(particle_reload,pt_shape_disk);
+part_type_size(particle_reload,0.1,0.2,0,0);
+part_type_scale(particle_reload,1,1);
+part_type_color2(particle_reload,12615935,3309823);
+part_type_alpha1(particle_reload,1);
+part_type_speed(particle_reload,0.50,1,0,0);
+part_type_direction(particle_reload,0,359,0,0);
+part_type_gravity(particle_reload,0,270);
+part_type_orientation(particle_reload,0,359,0,0,1);
+part_type_blend(particle_reload,1);
+part_type_life(particle_reload,30,30);
+
+emitter_reload = part_emitter_create(global.PSYSTEM);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>part_emitter_destroy(global.PSYSTEM, emitter_gun);
+part_emitter_destroy(global.PSYSTEM, emitter_blank);
+part_emitter_destroy(global.PSYSTEM, emitter_reload);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="2" enumb="2">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>bullet_type = "obj_bullet";
 </string>
           </argument>
         </arguments>
@@ -90,6 +185,8 @@ old_dir = dir;
             <kind>1</kind>
             <string>if (num_bullets &lt; max_bullets) {
     num_bullets += 1;
+    part_emitter_region(global.PSYSTEM,emitter_reload,x,x,y,y,ps_shape_ellipse,ps_distr_invgaussian);
+    part_emitter_burst(global.PSYSTEM, emitter_reload, particle_reload, 1 + irandom(3));
 }
 </string>
           </argument>
@@ -113,7 +210,13 @@ old_dir = dir;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>//Point gun in proper direction
+            <string>if (bullet_type == "obj_bullet") {
+    image_index = 0;
+} else if (bullet_type == "obj_bullet_strong") {
+    image_index = 1;
+}
+
+//Point gun in proper direction
 var bullet_x = 0;
 var bullet_y = 0;
 if (dir == aimdir.left) {
@@ -123,6 +226,8 @@ if (dir == aimdir.left) {
     y = obj_circle.y;
     bullet_x = x - bullet_xoffset;
     bullet_y = y;
+    part_type_direction(particle_gun,150,210,0,0);
+    part_type_direction(particle_blank,150,210,0,0);
 } else if (dir == aimdir.right) {
     image_angle = 0;
     image_xscale = 1;
@@ -130,6 +235,8 @@ if (dir == aimdir.left) {
     y = obj_circle.y;
     bullet_x = x + bullet_xoffset;
     bullet_y = y;
+    part_type_direction(particle_gun,-30,30,0,0);
+    part_type_direction(particle_blank,-30,30,0,0);
 } else if (dir == aimdir.up) {
     image_angle = 90;
     image_yscale = 1;
@@ -137,6 +244,8 @@ if (dir == aimdir.left) {
     y = obj_circle.y - gun_offset;
     bullet_x = x;
     bullet_y = y - bullet_yoffset;
+    part_type_direction(particle_gun,60,120,0,0);
+    part_type_direction(particle_blank,60,120,0,0);
 } else if (dir == aimdir.down) {
     image_angle = 90;
     image_yscale = -1;
@@ -144,6 +253,8 @@ if (dir == aimdir.left) {
     y = obj_circle.y + gun_offset;
     bullet_x = x;
     bullet_y = y + bullet_yoffset;
+    part_type_direction(particle_gun,240,300,0,0);
+    part_type_direction(particle_blank,240,300,0,0);
 }
 
 //Fire gun
@@ -153,15 +264,25 @@ if (can_shoot and obj_circle.key_shoot) {
         alarm[0] = cooldown;
     }
     if (num_bullets &gt; 0) {
-        var inst = instance_create(bullet_x, bullet_y, obj_bullet);
+        var inst;
+        if (bullet_type = "obj_bullet") {
+            inst = instance_create(bullet_x, bullet_y, obj_bullet);
+        } else if (bullet_type = "obj_bullet_strong") {
+            inst = instance_create(bullet_x, bullet_y, obj_bullet_strong);
+        }
         audio_play_sound(snd_pew, 4, false);
+        part_emitter_region(global.PSYSTEM,emitter_gun,bullet_x,bullet_x,bullet_y,bullet_y,0,0);
+        part_emitter_burst(global.PSYSTEM, emitter_gun, particle_gun, 5 + irandom(5));
         num_bullets -= 1;
         with (inst) {
+            inst.shotrange = other.shotrange;
             inst.direction = obj_gun.dir;
             inst.speed = global.TIME_PASSED * obj_gun.shotspeed;
         }
     } else {
         audio_play_sound(snd_click, 2, false);
+        part_emitter_region(global.PSYSTEM,emitter_blank,bullet_x,bullet_x,bullet_y,bullet_y,0,0);
+        part_emitter_burst(global.PSYSTEM, emitter_blank, particle_blank, 2 + irandom(3));
     }
 }
 

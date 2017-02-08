@@ -4,7 +4,7 @@
   <solid>0</solid>
   <visible>-1</visible>
   <depth>0</depth>
-  <persistent>0</persistent>
+  <persistent>-1</persistent>
   <parentName>&lt;undefined&gt;</parentName>
   <maskName>&lt;undefined&gt;</maskName>
   <events>
@@ -25,12 +25,86 @@
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>global.SPD = 100;
+            <string>global.debug = false;
+
+global.door_id = "";
+
+global.SPD = 100;
 global.TIME_PASSED = global.SPD * delta_time / 1000000;
+global.PSYSTEM = part_system_create();
+part_system_depth(global.PSYSTEM, 0);
+
+winx = window_get_x();
+winy = window_get_y();
 
 score = 0;
-gameover = false;
+global.GAMEOVER = false;
 delay = true;
+
+particle_win_r = part_type_create();
+part_type_shape(particle_win_r,pt_shape_line);
+part_type_size(particle_win_r,0.10,1,0,0);
+part_type_scale(particle_win_r,1,1);
+part_type_color3(particle_win_r,1316095,16716820,1376020);
+part_type_alpha1(particle_win_r,1);
+part_type_speed(particle_win_r,0.50,1,0,0);
+part_type_direction(particle_win_r,180,359,0,0);
+part_type_gravity(particle_win_r,0.10,270);
+part_type_orientation(particle_win_r,0,359,0,0,1);
+part_type_blend(particle_win_r,0);
+part_type_life(particle_win_r,130,130);
+
+particle_win_b = part_type_create();
+part_type_shape(particle_win_b,pt_shape_line);
+part_type_size(particle_win_b,0.10,1,0,0);
+part_type_scale(particle_win_b,1,1);
+part_type_color3(particle_win_b,16716820,1376020,1316095);
+part_type_alpha1(particle_win_b,1);
+part_type_speed(particle_win_b,0.50,1,0,0);
+part_type_direction(particle_win_b,180,359,0,0);
+part_type_gravity(particle_win_b,0.10,270);
+part_type_orientation(particle_win_b,0,359,0,0,1);
+part_type_blend(particle_win_b,0);
+part_type_life(particle_win_b,130,130);
+
+particle_win_g = part_type_create();
+part_type_shape(particle_win_g,pt_shape_line);
+part_type_size(particle_win_g,0.10,1,0,0);
+part_type_scale(particle_win_g,1,1);
+part_type_color3(particle_win_g,1376020,1316095,16716820);
+part_type_alpha1(particle_win_g,1);
+part_type_speed(particle_win_g,0.50,1,0,0);
+part_type_direction(particle_win_g,180,359,0,0);
+part_type_gravity(particle_win_g,0.10,270);
+part_type_orientation(particle_win_g,0,359,0,0,1);
+part_type_blend(particle_win_g,0);
+part_type_life(particle_win_g,130,130);
+
+emitter_win = part_emitter_create(global.PSYSTEM);
+part_emitter_region(global.PSYSTEM,emitter_win,-room_width,room_width,-100,0,ps_shape_rectangle,0);
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="1" enumb="0">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>part_system_destroy(global.PSYSTEM);
 </string>
           </argument>
         </arguments>
@@ -76,16 +150,25 @@ delay = true;
         <arguments>
           <argument>
             <kind>1</kind>
-            <string>global.TIME_PASSED = global.SPD * delta_time / 1000000;
-
-if (!gameover) {
-    score_str = "Score: " + string(score);
-    life_str = "Health: " + string(obj_circle.health);
-    ammo_str = "Ammo: " + string(obj_gun.num_bullets);
+            <string>if (winx != window_get_x() or winy != window_get_y() or
+    os_is_paused() or !window_has_focus() or delta_time &gt; 100000) {
+    winx = window_get_x();
+    winy = window_get_y();
+    global.SPD = 0;
+} else if (!global.GAMEOVER) {
+    global.SPD = 100;
 }
 
-if (!gameover and obj_circle.health &lt;= 0) {
-    gameover = true;
+global.TIME_PASSED = global.SPD * delta_time / 1000000;
+
+if (!global.GAMEOVER) {
+    score_str = "Score: " + string(score);
+    //life_str = "Health: " + string(obj_circle.health);
+    //ammo_str = "Ammo: " + string(obj_gun.num_bullets);
+}
+
+if (!global.GAMEOVER and obj_circle.health &lt;= 0) {
+    global.GAMEOVER = true;
     global.SPD = 0;
     alarm[0] = room_speed * 1;
     with (obj_circle) {
@@ -107,7 +190,14 @@ if (!gameover and obj_circle.health &lt;= 0) {
     ini_close();
 }
 
-if (gameover and !delay and keyboard_check_pressed(vk_anykey)) {
+if (global.GAMEOVER and hiscore_new) {
+    part_emitter_burst(global.PSYSTEM,emitter_win,particle_win_r,1);
+    part_emitter_burst(global.PSYSTEM,emitter_win,particle_win_b,1);
+    part_emitter_burst(global.PSYSTEM,emitter_win,particle_win_g,1);
+}
+
+if (global.GAMEOVER and !delay and keyboard_check_pressed(vk_space)) {
+    part_particles_clear(global.PSYSTEM);
     room_restart();
 }
 </string>
@@ -133,15 +223,15 @@ if (gameover and !delay and keyboard_check_pressed(vk_anykey)) {
           <argument>
             <kind>1</kind>
             <string>draw_set_font(fnt_rockSalt);
-draw_set_color(c_black);
+draw_set_color(c_white);
 draw_set_alpha(1);
 draw_set_halign(fa_left);
 draw_set_valign(fa_top);
-draw_text(room_width/2 - 70, 10, score_str);
+//draw_text(room_width/2 - 70, 10, score_str);
 
-if (gameover) {
-    draw_set_color(c_black);
-    draw_set_alpha(0.5);
+if (global.GAMEOVER) {
+    draw_set_color(c_white);
+    draw_set_alpha(0.25);
     draw_rectangle(0, 0, room_width, room_height, 0);
     draw_set_color(c_white);
     draw_set_alpha(1);
@@ -157,8 +247,31 @@ if (gameover) {
         draw_set_font(fnt_itim_small);
         draw_text(room_width/2, room_height/4 + 128, "High Score: " + string(hiscore));
     }
-    draw_text(room_width/2, room_height/4 + 172, "Press any key to restart!");
+    draw_text(room_width/2, room_height/4 + 172, "Press space to restart!");
 }
+</string>
+          </argument>
+        </arguments>
+      </action>
+    </event>
+    <event eventtype="9" enumb="80">
+      <action>
+        <libid>1</libid>
+        <id>603</id>
+        <kind>7</kind>
+        <userelative>0</userelative>
+        <isquestion>0</isquestion>
+        <useapplyto>-1</useapplyto>
+        <exetype>2</exetype>
+        <functionname></functionname>
+        <codestring></codestring>
+        <whoName>self</whoName>
+        <relative>0</relative>
+        <isnot>0</isnot>
+        <arguments>
+          <argument>
+            <kind>1</kind>
+            <string>//global.debug = !global.debug;
 </string>
           </argument>
         </arguments>
